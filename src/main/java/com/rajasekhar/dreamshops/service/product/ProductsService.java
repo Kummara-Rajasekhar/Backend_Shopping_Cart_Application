@@ -1,13 +1,18 @@
 package com.rajasekhar.dreamshops.service.product;
 
+import com.rajasekhar.dreamshops.dto.ImageDto;
+import com.rajasekhar.dreamshops.dto.ProductDto;
 import com.rajasekhar.dreamshops.exceptions.ProductNotFoundException;
 import com.rajasekhar.dreamshops.model.Category;
+import com.rajasekhar.dreamshops.model.Image;
 import com.rajasekhar.dreamshops.repository.CategoryRepository;
+import com.rajasekhar.dreamshops.repository.ImageRepository;
 import com.rajasekhar.dreamshops.repository.ProductRepository;
 import com.rajasekhar.dreamshops.model.Product;
 import com.rajasekhar.dreamshops.request.AddProductRequest;
 import com.rajasekhar.dreamshops.request.ProductUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +26,8 @@ public class ProductsService implements IProductService{
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
+    private final ModelMapper modelMapper;
+    private final ImageRepository imageRepository;
 
 
     @Override
@@ -117,4 +123,23 @@ public class ProductsService implements IProductService{
     public Long countProductsByBrandAndName(String brand, String name) {
         return productRepository.countByBrandAndName(brand,name);
     }
+
+    @Override
+    public ProductDto convertToDto(Product product){
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos=images.stream().map(image->modelMapper.map(image,ImageDto.class)).toList();
+        productDto.setImages(imageDtos);
+        return productDto;
+    }
+
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products){
+        return  products.stream().map(this::convertToDto).toList();
+    }
+
+
+
+
 }
