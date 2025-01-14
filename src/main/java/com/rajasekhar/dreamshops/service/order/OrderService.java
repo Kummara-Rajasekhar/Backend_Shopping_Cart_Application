@@ -1,5 +1,6 @@
 package com.rajasekhar.dreamshops.service.order;
 
+import com.rajasekhar.dreamshops.dto.OrderDto;
 import com.rajasekhar.dreamshops.enums.OrderStatus;
 import com.rajasekhar.dreamshops.model.Cart;
 import com.rajasekhar.dreamshops.model.Order;
@@ -10,6 +11,7 @@ import com.rajasekhar.dreamshops.repository.ProductRepository;
 import com.rajasekhar.dreamshops.service.Cart.CartService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public  class orderService implements IOrderService {
     private  final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final ModelMapper modelMapper;
 
 
     @Override
@@ -76,13 +79,15 @@ public  class orderService implements IOrderService {
     }
 
 
-    private static BigDecimal calculateTotalAmount(List<OrderItem> orderItemList){
+    private BigDecimal calculateTotalAmount(List<OrderItem> orderItemList){
         return orderItemList
                 .stream()
                 .map(item->item.getPrice()
                         .multiply(new BigDecimal(item.getQuantity())))
                 .reduce(BigDecimal.ZERO,BigDecimal::add);
-    }
+
+        }
+
 
 
     public Order getOrder(Long orderId) {
@@ -93,4 +98,10 @@ public  class orderService implements IOrderService {
     public List<Order> getUserOrdrs(Long userId) {
         return orderRepository.findByUserId(userId);
     }
+
+    private OrderDto convertToDto(Order order) {
+    return modelMapper.map(order,OrderDto.class);
+
+    }
+
 }
