@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class CartController {
     private final ICartservice cartservice;
 
-    @RequestMapping("/{cartId}/my-cart")
+    @GetMapping("/{cartId}/my-cart")
     public ResponseEntity<ApiResponse> getCart(@PathVariable Long cartId){
         try{
             Cart cart =cartservice.getCart(cartId);
